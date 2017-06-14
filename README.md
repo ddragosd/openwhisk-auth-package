@@ -1,6 +1,8 @@
 # experimental-auth-package
 Openwhisk Package for setting up an authentication flow in BladeRunner
 
+> STATUS: WORK IN PROGRESS
+
 ## Authentication sequence
 
 The authentication flow is composed using a sequence of actions:
