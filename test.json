@@ -1,0 +1,10 @@
+{
+  "body": {
+    "token": "abc",
+    "refreshToken": "123",
+    "profile": {
+      "id": 11111111,
+      "_raw": "tbd"
+    }
+  }
+}
