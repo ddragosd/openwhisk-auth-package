@@ -12,10 +12,10 @@ The authentication flow is composed using a sequence of actions:
 ```
 
 * `authenticate` - uses [experimental-openwhisk-passport-auth](https://git.corp.adobe.com/bladerunner/experimental-openwhisk-passport-auth) action.
-* `encrypt` - `TBD`. an action that encrypts the Access Token, Refresh Token, and User Profile using Openwhisk Namespace API-KEY.
+* `encrypt` - uses [./action/encrypt.js](action/encrypt.js) to encrypt the Access Token, Refresh Token, and User Profile using Openwhisk Namespace API-KEY.
 * `persist` - uses [experimental-openwhisk-cache-redis](https://git.corp.adobe.com/bladerunner/experimental-openwhisk-cache-redis). Other actions leveraging DyamoDB or another Azure storage could be used instead of Redis.
 
-The end-user should be taken through this authentication UI of the corresponding provider.
+The end-user needs to be taken through the authentication UI of the corresponding provider.
 
 ## Retrieving the persisted info
 
@@ -26,4 +26,3 @@ persist (GET) -> decrypt
 ```
 * `persist` is the same action used during Authentication
 * `decrypt` - TBD.
-
