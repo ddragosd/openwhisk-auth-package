@@ -5,13 +5,7 @@ Openwhisk Package for setting up an authentication flow in BladeRunner
 
 ## Logging in Users using an Authentication Sequence
 
-To install it execute:
-
-```bash
-$ make install
-```
-
-The authentication flow is composed using a sequence of actions:
+The end goal is to create an authentication flow that is composed from a sequence of actions:
 
 ```
   login -> encrypt -> persist (SET)
@@ -23,15 +17,49 @@ The authentication flow is composed using a sequence of actions:
 
 The end-user needs to be taken through the authentication UI of the corresponding provider.
 
-### Configure Adobe authentication provider
+### Installing supporting actions
+
+For a quick setup use:
 
 ```bash
-$ CLIENT_ID=AAA CLIENT_SECRET=BBB make adobe-oauth
+$ make install
 ```
+
+This command sets up 2 packages in a user's namespace( `system` in the example bellow ):
+
+```bash
+$ wsk package get oauth --summary
+  package /system/oauth
+   action /system/oauth/login
+
+$ wsk package get cache --summary
+  package /system/cache
+   action /system/cache/encrypt
+   action /system/cache/persist
+```
+
+* the `oauth` package contains the `login` action with no default parameters;
+* the `cache` package container the `encrypt` and `persist` actions,
+  which are to be reused in the authentication sequence
+
+> NOTE: These packages could be publicly available from a `system` package,
+so that other namespaces can reference/bind to them. This offers the flexibility to
+maintain the supporting actions in a single place, vs having them copied and installed
+in each namespace.
+
+### Configure Adobe as an authentication provider
+
+```bash
+$ CLIENT_ID=AAA CLIENT_SECRET=BBB SCOPES=a,b,c,d make adobe-oauth
+```
+
+This command uses `/system/oauth/login` to create a package binding,
+configuring the credentials via default parameters. Then it creates the final action as a sequence ( `login -> encrypt -> persist`). To make for a nicer URI, the sequence action is placed in its own package so that it's presented as: `/api/v1/web/guest/adobe/authenticate`.
+
 
 ## Retrieving the persisted info
 
-Use the same `persist` action used during authentication to retrieve the information. B/c the information is encrypted with Openwhisk Namespace API-KEY it can only be decrypted by other actions belonging to the same namespace; there's no need to share the API-KEY with other actions. The API-KEY belonging to the namespace is injected by Openwhisk at invocation time.
+Use the same `persist` action used during authentication to retrieve the information. B/c the information is encrypted with Openwhisk Namespace API-KEY it can only be decrypted by actions within the same namespace. The API-KEY belonging to the namespace is injected by Openwhisk as an environment variable at invocation time.
 
 ```
 persist (GET) -> decrypt

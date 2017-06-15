@@ -1,5 +1,5 @@
-OAUTH_PACKAGE_NAME ?= oauth.generic
-CACHE_PACKAGE_NAME ?= cache.generic
+OAUTH_PACKAGE_NAME ?= oauth
+CACHE_PACKAGE_NAME ?= cache
 NAMESPACE ?= guest
 CLIENT_ID ?= change-me
 CLIENT_SECRET ?= change-me
@@ -33,7 +33,7 @@ uninstall:
 
 .PHONY: adobe-oauth
 adobe-oauth:
-	wsk package get adobe_oauth --summary && wsk package delete adobe_oauth
+	(wsk package get adobe_oauth --summary && wsk package delete adobe_oauth) || echo "package is available"
 	wsk package bind $(OAUTH_PACKAGE_NAME) adobe_oauth \
 		--param auth_provider adobe-oauth2 --param auth_provider_name adobe \
 		--param client_id $(CLIENT_ID) \
