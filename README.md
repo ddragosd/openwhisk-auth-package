@@ -23,6 +23,12 @@ The authentication flow is composed using a sequence of actions:
 
 The end-user needs to be taken through the authentication UI of the corresponding provider.
 
+### Configure Adobe authentication provider
+
+```bash
+$ CLIENT_ID=AAA CLIENT_SECRET=BBB make adobe-oauth
+```
+
 ## Retrieving the persisted info
 
 Use the same `persist` action used during authentication to retrieve the information. B/c the information is encrypted with Openwhisk Namespace API-KEY it can only be decrypted by other actions belonging to the same namespace; there's no need to share the API-KEY with other actions. The API-KEY belonging to the namespace is injected by Openwhisk at invocation time.

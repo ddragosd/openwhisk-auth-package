@@ -1,8 +1,8 @@
 OAUTH_PACKAGE_NAME ?= oauth.generic
 CACHE_PACKAGE_NAME ?= cache.generic
 NAMESPACE ?= guest
-CLIENT_ID ?= ad511f26a8334e49bdf54cf94e28f6ef
-CLIENT_SECRET ?= e642bb81-7023-43d6-aa8d-c7254749aa5b
+CLIENT_ID ?= change-me
+CLIENT_SECRET ?= change-me
 SCOPES ?= openid,AdobeID,creative_sdk
 BASE_URL ?= https://runtime-preview.adobe.io
 
