@@ -1,0 +1,13 @@
+{
+  "name": "serverless-deployment",
+  "version": "0.1.0",
+  "description": "Deploys the main actions.",
+  "scripts": {
+    "postinstall": "",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "openwhisk-passport-auth": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-runner-release/openwhisk-passport-auth/-/openwhisk-passport-auth-0.0.1.tgz",
+    "openwhisk-cache-redis": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-runner-release/openwhisk-cache-redis/-/openwhisk-cache-redis-0.0.1.tgz"
+  }
+}

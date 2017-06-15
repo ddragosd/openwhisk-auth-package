@@ -1,13 +1,64 @@
+OAUTH_PACKAGE_NAME ?= oauth.generic
+CACHE_PACKAGE_NAME ?= cache.generic
+NAMESPACE ?= guest
+CLIENT_ID ?= ad511f26a8334e49bdf54cf94e28f6ef
+CLIENT_SECRET ?= e642bb81-7023-43d6-aa8d-c7254749aa5b
+SCOPES ?= openid,AdobeID,creative_sdk
+BASE_URL ?= https://runtime-preview.adobe.io
+
+.PHONY: create-oauth-package
+create-oauth-package:
+	wsk package get $(OAUTH_PACKAGE_NAME) --summary || wsk package create $(OAUTH_PACKAGE_NAME)
+	wsk action update $(OAUTH_PACKAGE_NAME)/login ./node_modules/openwhisk-passport-auth/openwhisk-passport-auth-0.0.1.js
+
+.PHONY: create-cache-package
+create-cache-package:
+	wsk package get $(CACHE_PACKAGE_NAME) --summary || wsk package create $(CACHE_PACKAGE_NAME)
+	# TODO: redis should be auto-discovvered and updated when changes occur
+	wsk action update $(CACHE_PACKAGE_NAME)/persist ./node_modules/openwhisk-cache-redis/openwhisk-cache-redis-0.0.1.js --param redis_host //10.0.2.159:6380
+	wsk action update $(CACHE_PACKAGE_NAME)/encrypt ./action/encrypt.js
+
+npm-install:
+	npm install
+
 .PHONY: install
-install:
-	wsk package get cache --summary || wsk package create cache
-	wsk action update cache/encrypt ./action/encrypt.js
-	# create sequence
-	wsk package get oauth --summary || wsk package create oauth
-	wsk action update oauth/github_com --sequence oauth/github,cache/encrypt,cache/redis --web true
+install: npm-install create-oauth-package create-cache-package
+
+uninstall:
+	wsk action delete $(CACHE_PACKAGE_NAME)/persist
+	wsk action delete $(CACHE_PACKAGE_NAME)/encrypt
+	wsk package delete $(CACHE_PACKAGE_NAME)
+	wsk action delete $(OAUTH_PACKAGE_NAME)/login
+	wsk package delete $(OAUTH_PACKAGE_NAME)
+
+.PHONY: adobe-oauth
+adobe-oauth:
+	wsk package get adobe_oauth --summary && wsk package delete adobe_oauth
+	wsk package bind $(OAUTH_PACKAGE_NAME) adobe_oauth \
+		--param auth_provider adobe-oauth2 --param auth_provider_name adobe \
+		--param client_id $(CLIENT_ID) \
+		--param client_secret $(CLIENT_SECRET) \
+		--param scopes $(SCOPES) \
+		--param callback_url $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate.json
+	wsk package get adobe --summary || wsk package create adobe
+	wsk action update adobe/authenticate --sequence adobe_oauth/login,$(CACHE_PACKAGE_NAME)/encrypt,$(CACHE_PACKAGE_NAME)/persist	--web true
+	echo "To Login Open: " $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate
+	echo "Make sure to configure the Redirect URL Pattern to " $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate.json
+
+.PHONY: other
+other:
+	echo "TBD"
+
+	#wsk action update oauth/github_com --sequence oauth/github,cache/encrypt,cache/redis --web true
+
+	#wsk action update oauth/adobe_com --sequence oauth/adobe,cache/encrypt,cache/redis --web true
 
 	# previously the oauth/github action has been created with:
 	# wsk action update oauth/github ./openwhisk-passport-auth-0.0.1.js --param auth_provider github --param client_id XXXXXXX --param client_secret XXXXX --param callback_url https://runtime-preview.adobe.io/api/v1/web/guest/oauth/github_com.json
+
+	# oauth/adobe action can be created with:
+	# wsk action update oauth/adobe ./openwhisk-passport-auth-0.0.1.js --param auth_provider adobe-oauth2 --param auth_provider_name adobe --param client_id XXXXX --param client_secret XXXXXX --param scopes openid,AdobeID --param callback_url https://runtime-preview.adobe.io/api/v1/web/guest/oauth/adobe_com.json
+	# wsk action update oauth/adobe_com --sequence oauth/adobe,cache/encrypt,cache/redis --web true
 
 	# cache/redis has been created with:
 	# wsk action create cache/redis ./openwhisk-cache-redis-0.0.1.js --param redis_host //10.0.2.159:6380

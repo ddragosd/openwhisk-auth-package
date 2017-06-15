@@ -3,17 +3,23 @@ Openwhisk Package for setting up an authentication flow in BladeRunner
 
 > STATUS: WORK IN PROGRESS
 
-## Authentication sequence
+## Logging in Users using an Authentication Sequence
+
+To install it execute:
+
+```bash
+$ make install
+```
 
 The authentication flow is composed using a sequence of actions:
 
 ```
-  authenticate -> encrypt -> persist (SET)
+  login -> encrypt -> persist (SET)
 ```
 
-* `authenticate` - uses [experimental-openwhisk-passport-auth](https://git.corp.adobe.com/bladerunner/experimental-openwhisk-passport-auth) action.
+* `login` - uses [experimental-openwhisk-passport-auth](https://git.corp.adobe.com/bladerunner/experimental-openwhisk-passport-auth) action.
 * `encrypt` - uses [./action/encrypt.js](action/encrypt.js) to encrypt the Access Token, Refresh Token, and User Profile using Openwhisk Namespace API-KEY.
-* `persist` - uses [experimental-openwhisk-cache-redis](https://git.corp.adobe.com/bladerunner/experimental-openwhisk-cache-redis). Other actions leveraging DyamoDB or another Azure storage could be used instead of Redis.
+* `persist` - uses [experimental-openwhisk-cache-redis](https://git.corp.adobe.com/bladerunner/experimental-openwhisk-cache-redis). Other actions leveraging DynamoDB or another Azure storage could be used instead of Redis.
 
 The end-user needs to be taken through the authentication UI of the corresponding provider.
 
