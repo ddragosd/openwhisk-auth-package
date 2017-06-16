@@ -3,8 +3,9 @@ CACHE_PACKAGE_NAME ?= cache
 NAMESPACE ?= guest
 CLIENT_ID ?= change-me
 CLIENT_SECRET ?= change-me
-SCOPES ?= openid,AdobeID,creative_sdk
+SCOPES ?= ""
 BASE_URL ?= https://runtime-preview.adobe.io
+PROVIDER ?= change-me
 
 .PHONY: create-oauth-package
 create-oauth-package:
@@ -44,6 +45,22 @@ adobe-oauth:
 	wsk action update adobe/authenticate --sequence adobe_oauth/login,$(CACHE_PACKAGE_NAME)/encrypt,$(CACHE_PACKAGE_NAME)/persist	--web true
 	echo "To Login Open: " $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate
 	echo "Make sure to configure the Redirect URL Pattern to " $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate.json
+
+.PHONY: oauth
+oauth:
+	(wsk package get $(PROVIDER)_oauth --summary && wsk package delete $(PROVIDER)_oauth) || echo "package is available"
+	wsk package bind $(OAUTH_PACKAGE_NAME) $(PROVIDER)_oauth \
+		--param auth_provider $(PROVIDER)  \
+		--param client_id $(CLIENT_ID) \
+		--param client_secret $(CLIENT_SECRET) \
+		--param scopes $(SCOPES) \
+		--param callback_url $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate.json
+	wsk package get $(PROVIDER) --summary || wsk package create $(PROVIDER)
+	wsk action update $(PROVIDER)/authenticate --sequence $(PROVIDER)_oauth/login,$(CACHE_PACKAGE_NAME)/encrypt,$(CACHE_PACKAGE_NAME)/persist	--web true
+	echo "To Login Open: " $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate
+	echo "Make sure to configure the Redirect URL Pattern to " $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate.json
+
+
 
 .PHONY: other
 other:

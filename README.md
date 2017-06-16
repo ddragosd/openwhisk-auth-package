@@ -56,6 +56,24 @@ $ CLIENT_ID=AAA CLIENT_SECRET=BBB SCOPES=a,b,c,d make adobe-oauth
 This command uses `/system/oauth/login` to create a package binding,
 configuring the credentials via default parameters. Then it creates the final action as a sequence ( `login -> encrypt -> persist`). To make for a nicer URI, the sequence action is placed in its own package so that it's presented as: `/api/v1/web/guest/adobe/authenticate`.
 
+### Configuring GitHub as an authentication provider
+
+```make
+PROVIDER=github CLIENT_ID=XX CLIENT_SECRET=BBB make oauth
+```
+
+### Configuring Facebook as an authentication provider
+
+```make
+PROVIDER=facebook CLIENT_ID=XX CLIENT_SECRET=BBB make oauth
+```
+
+### Configuring Twitter as an authentication provider
+
+```make
+PROVIDER=twitter CLIENT_ID=XX CLIENT_SECRET=BBB make oauth
+```
+
 
 ## Retrieving the persisted info
 
