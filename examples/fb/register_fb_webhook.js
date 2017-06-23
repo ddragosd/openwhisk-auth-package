@@ -28,7 +28,8 @@ function main(params) {
           fields: 'photos,pic,picture,statuses',
           callback_url: params.webhook_url,
           verify_token: params.verify_token,
-          access_token: params.client_id + '|' + params.client_secret
+          access_token: params.client_id + '|' + params.client_secret,
+          include_values: 1
         },
         headers: {
           /* 'content-type': 'application/x-www-form-urlencoded' */ // Is set automatically,
