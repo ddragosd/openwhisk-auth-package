@@ -60,6 +60,22 @@ oauth:
 	echo "To Login Open: " $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate
 	echo "Make sure to configure the Redirect URL Pattern to " $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate.json
 
+.PHONY: examples-fb
+examples-fb: oauth
+	wsk action update facebook/webhook ./examples/fb/generic_event_handler.js \
+		--param verify_token openwhisk \
+		--web true
+	wsk action update facebook/photos_update_handler ./examples/fb/photos_update_handler.js
+	wsk action update facebook/subscribe ./examples/fb/register_fb_webhook.js \
+			--param client_id $(CLIENT_ID) \
+			--param client_secret $(CLIENT_SECRET) \
+			--param verify_token openwhisk \
+			--param webhook_url $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/webhook
+	# subscribe to facebook webhooks
+	wsk action invoke facebook/subscribe --blocking --result
+	wsk trigger update facebook_photos_update
+	wsk rule update facebook_photos_update_rule facebook_photos_update facebook/photos_update_handler
+	wsk rule enable facebook_photos_update_rule
 
 
 .PHONY: other
