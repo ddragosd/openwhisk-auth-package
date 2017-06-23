@@ -67,8 +67,8 @@ PROVIDER=github CLIENT_ID=XX CLIENT_SECRET=BBB make oauth
 ```make
 PROVIDER=facebook CLIENT_ID=XX CLIENT_SECRET=BBB SCOPES=user_posts,user_photos make oauth
 ```
-
-For an end-to-end example see [examples/fb](examples/fb/).
+#### End-to-end example
+See [examples/fb](examples/fb/).
 
 ### Configuring Twitter as an authentication provider
 
