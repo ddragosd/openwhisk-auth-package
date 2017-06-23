@@ -74,3 +74,6 @@ activation result for /guest/photos_update_handler (success at 2017-06-23 03:37:
 ```
 
 From this point on, we can build a sequence that takes this images from FB and does something with them; it could sync them into another photo storage solution, apply some filters, or do anything else. The sky is the limit.
+
+#### Troubleshooting
+If the incoming event from Facebook doesn't include the changed values, follow the steps in https://developers.facebook.com/docs/graph-api/webhooks#subscribing and go to the `App Dashboard` -> `Products` -> `Webhooks` -> `Edit subscription`, and make sure the `Include Values` says `YES`.
