@@ -30,7 +30,8 @@ function main(params) {
         token: params.body.token,
         refresh_token: params.body.refreshToken,
         profile: params.body.profile._raw
-      }
+      },
+      context: params.body.context
     });
   });
 }
