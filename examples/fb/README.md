@@ -20,7 +20,7 @@ This command sets up the following actions in OpenWhisk:
 
 ### Testing
 
-Authenticate in Facebook using the action configured during setup, step 1. Open:  `https://<openwhisk_host>/api/v1/web/guest/facebook/authenticate` .
+Authenticate in Facebook using the action configured during setup, step 1. Open:  `https://<openwhisk_host>/api/v1/web/<namespace>/facebook/authenticate` .
 
 Then add a new image in Facebook.
 

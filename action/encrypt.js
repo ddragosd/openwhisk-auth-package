@@ -25,7 +25,7 @@ function main(params) {
     // the response bellow should be sent to the persistence action
     resolve({
       // cache key is based on the User ID
-      key: params.body.profile.id,
+      key: ":oauth:" + params.body.profile.id,
       value: {
         token: params.body.token,
         refresh_token: params.body.refreshToken,
@@ -36,4 +36,14 @@ function main(params) {
   });
 }
 
+function test_web_action(params) {
+  console.log(params);
+  return {
+    headers: { 'Content-Type': 'application/json' },
+    statusCode: 200,
+    body: new Buffer(JSON.stringify(params.__ow_headers)).toString('base64')
+  }
+}
+
 exports.main=main;
+exports.test_web_action=test_web_action;

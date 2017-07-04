@@ -1,6 +1,6 @@
 OAUTH_PACKAGE_NAME ?= oauth
 CACHE_PACKAGE_NAME ?= cache
-NAMESPACE ?= guest
+NAMESPACE ?= $(shell wsk namespace list | grep -v namespaces)
 CLIENT_ID ?= change-me
 CLIENT_SECRET ?= change-me
 SCOPES ?= ""
@@ -10,7 +10,8 @@ PROVIDER ?= change-me
 .PHONY: create-oauth-package
 create-oauth-package:
 	wsk package get $(OAUTH_PACKAGE_NAME) --summary || wsk package create $(OAUTH_PACKAGE_NAME)
-	wsk action update $(OAUTH_PACKAGE_NAME)/login ./node_modules/openwhisk-passport-auth/openwhisk-passport-auth-0.0.2.js
+	wsk action update $(OAUTH_PACKAGE_NAME)/login ./node_modules/openwhisk-passport-auth/openwhisk-passport-auth-0.0.4.js
+	wsk action update $(OAUTH_PACKAGE_NAME)/success ./node_modules/openwhisk-passport-auth/src/action/redirect.js --main redirect
 
 .PHONY: create-cache-package
 create-cache-package:
@@ -30,6 +31,7 @@ uninstall:
 	wsk action delete $(CACHE_PACKAGE_NAME)/encrypt
 	wsk package delete $(CACHE_PACKAGE_NAME)
 	wsk action delete $(OAUTH_PACKAGE_NAME)/login
+	wsk action delete $(OAUTH_PACKAGE_NAME)/success
 	wsk package delete $(OAUTH_PACKAGE_NAME)
 
 .PHONY: adobe-oauth
@@ -40,11 +42,12 @@ adobe-oauth:
 		--param client_id $(CLIENT_ID) \
 		--param client_secret $(CLIENT_SECRET) \
 		--param scopes $(SCOPES) \
-		--param callback_url $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate.json
+		--param callback_url $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate \
+		--param redirect_url https://adobe.com
 	wsk package get adobe --summary || wsk package create adobe
-	wsk action update adobe/authenticate --sequence adobe_oauth/login,$(CACHE_PACKAGE_NAME)/encrypt,$(CACHE_PACKAGE_NAME)/persist	--web true
+	wsk action update adobe/authenticate --sequence adobe_oauth/login,$(CACHE_PACKAGE_NAME)/encrypt,$(CACHE_PACKAGE_NAME)/persist,$(OAUTH_PACKAGE_NAME)/success	--web true
 	echo "To Login Open: " $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate
-	echo "Make sure to configure the Redirect URL Pattern to " $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate.json
+	echo "Make sure to configure the Redirect URL Pattern to " $(BASE_URL)/api/v1/web/$(NAMESPACE)/adobe/authenticate
 
 .PHONY: oauth
 oauth:
@@ -54,9 +57,10 @@ oauth:
 		--param client_id $(CLIENT_ID) \
 		--param client_secret $(CLIENT_SECRET) \
 		--param scopes $(SCOPES) \
-		--param callback_url $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate.json
+		--param callback_url $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate \
+		--param redirect_url https://facebook.com
 	wsk package get $(PROVIDER) --summary || wsk package create $(PROVIDER)
-	wsk action update $(PROVIDER)/authenticate --sequence $(PROVIDER)_oauth/login,$(CACHE_PACKAGE_NAME)/encrypt,$(CACHE_PACKAGE_NAME)/persist	--web true
+	wsk action update $(PROVIDER)/authenticate --sequence $(PROVIDER)_oauth/login,$(CACHE_PACKAGE_NAME)/encrypt,$(CACHE_PACKAGE_NAME)/persist,$(OAUTH_PACKAGE_NAME)/success	--web true
 	echo "To Login Open: " $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate
 	echo "Make sure to configure the Redirect URL Pattern to " $(BASE_URL)/api/v1/web/$(NAMESPACE)/$(PROVIDER)/authenticate.json
 
@@ -76,7 +80,6 @@ examples-fb: oauth
 	wsk trigger update facebook_photos_update
 	wsk rule update facebook_photos_update_rule facebook_photos_update facebook/photos_update_handler
 	wsk rule enable facebook_photos_update_rule
-
 
 .PHONY: other
 other:
@@ -100,3 +103,6 @@ other:
 
 	# after login check that the info is persisted in the cache:
 	# wsk action invoke cache/redis --result --blocking --param key 541933
+
+	# Linkngin accounts:
+	# https://runtime-preview.adobe.io/api/v1/web/guest/facebook/authenticate?success_redirect=/api/v1/web/guest/adobe/authenticate%3Fsuccess_redirect%3D%2Fapi%2Fv1%2Fweb%2Fguest%2Fdefault%2Ftest_web_action

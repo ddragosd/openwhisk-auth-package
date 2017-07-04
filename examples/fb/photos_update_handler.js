@@ -92,7 +92,7 @@ function _getUserDetails(user_id, fields) {
         blocking: true,
         result: true,
         params: {
-          key: user_id,
+          key: ":oauth:" + user_id,
           fields: fields
         }
       }).then(result => {
