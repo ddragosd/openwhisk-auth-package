@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "openwhisk-passport-auth": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-runner-release/openwhisk-passport-auth/-/openwhisk-passport-auth-0.0.4.tgz",
-    "openwhisk-cache-redis": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-runner-release/openwhisk-cache-redis/-/openwhisk-cache-redis-0.0.2.tgz"
+    "openwhisk-passport-auth": "0.0.1",
+    "openwhisk-cache-redis": "0.0.6"
   }
 }

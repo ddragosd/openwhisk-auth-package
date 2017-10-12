@@ -36,6 +36,24 @@ function main(params) {
   });
 }
 
+function _link_accounts(identities) {
+  var linked_ids = [];
+  if (identities == null ) {
+    return [];
+  }
+  // an array of key,value pairs used to persist the linked ids
+  var identities_as_string = JSON.stringify(identities);
+  for(var i=0; i< identities.length; i++ ) {
+    linked_ids.push({
+      key: ":oauth:" + identities[i].user_id,
+      value: {
+        linked_ids: identities_as_string
+      }
+    });
+  }
+  return linked_ids;
+}
+
 function test_web_action(params) {
   console.log(params);
   return {
