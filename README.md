@@ -48,15 +48,6 @@ so that other namespaces can reference/bind to them. This offers the flexibility
 maintain the supporting actions in a single place, vs having them copied and installed
 in each namespace.
 
-### Configuring Adobe as an authentication provider
-
-```bash
-$ CLIENT_ID=AAA CLIENT_SECRET=BBB SCOPES=openid,AdobeID,creative_sdk make adobe-oauth
-```
-
-This command uses `/system/oauth/login` to create a package binding,
-configuring the credentials via default parameters. Then it creates the final action as a sequence ( `login -> encrypt -> persist`). To make for a nicer URI, the sequence action is placed in its own package so that it's presented to the end users as: `/api/v1/web/guest/adobe/authenticate`.
-
 ### Configuring GitHub as an authentication provider
 
 ```make
